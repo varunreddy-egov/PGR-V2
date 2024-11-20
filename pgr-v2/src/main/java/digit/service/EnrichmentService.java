@@ -11,18 +11,18 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
-import static digit.config.ServiceConstants.*;
+import static digit.config.ServiceConstants.USERTYPE_CITIZEN;
 
 @org.springframework.stereotype.Service
 public class EnrichmentService {
 
-	private PGRUtil pgrUtil;
+	private final PGRUtil pgrUtil;
 
-	private IdgenUtil idgenUtil;
+	private final IdgenUtil idgenUtil;
 
-	private PGRConfiguration config;
+	private final PGRConfiguration config;
 
-	private UserService userService;
+	private final UserService userService;
 
 	@Autowired
 	public EnrichmentService(PGRUtil pgrUtil, IdgenUtil idgenUtil, PGRConfiguration config, UserService userService) {
@@ -32,18 +32,23 @@ public class EnrichmentService {
 		this.userService = userService;
 	}
 
-	public void enrichCreateRequest(ServiceRequest serviceRequest) {
+	/**
+	 * Enriches a service request during its creation process by populating necessary fields.
+	 *
+	 * @param request The service request to be enriched.
+	 */
+	public void enrichCreateRequest(ServiceRequest request) {
 
-		RequestInfo requestInfo = serviceRequest.getRequestInfo();
-		Service service = serviceRequest.getPgrEntity().getService();
-		Workflow workflow = serviceRequest.getPgrEntity().getWorkflow();
+		RequestInfo requestInfo = request.getRequestInfo();
+		Service service = request.getPgrEntity().getService();
+		Workflow workflow = request.getPgrEntity().getWorkflow();
 		String tenantId = service.getTenantId();
 
 		// Enrich accountId of the logged in citizen
 		if (requestInfo.getUserInfo().getType().equalsIgnoreCase(USERTYPE_CITIZEN))
-			serviceRequest.getPgrEntity().getService().setAccountId(requestInfo.getUserInfo().getUuid());
+			request.getPgrEntity().getService().setAccountId(requestInfo.getUserInfo().getUuid());
 
-		userService.callUserService(serviceRequest);
+		userService.callUserService(request);
 
 
 		AuditDetails auditDetails = pgrUtil.getAuditDetails(requestInfo.getUserInfo().getUuid(), service, true);
@@ -69,6 +74,11 @@ public class EnrichmentService {
 
 	}
 
+	/**
+	 * Enriches a service request during its update process by populating necessary fields.
+	 *
+	 * @param serviceRequest The service request to be enriched during the update.
+	 */
 	public void enrichUpdateRequest(ServiceRequest serviceRequest) {
 
 		RequestInfo requestInfo = serviceRequest.getRequestInfo();
@@ -80,6 +90,12 @@ public class EnrichmentService {
 		userService.callUserService(serviceRequest);
 	}
 
+	/**
+	 * Enriches the search criteria for a service request search by populating necessary fields.
+	 *
+	 * @param requestInfo The request info containing user details.
+	 * @param criteria    The search criteria to be enriched.
+	 */
 	public void enrichSearchRequest(RequestInfo requestInfo, RequestSearchCriteria criteria) {
 
 		if (criteria.isEmpty() && requestInfo.getUserInfo().getType().equalsIgnoreCase(USERTYPE_CITIZEN)) {
@@ -103,6 +119,5 @@ public class EnrichmentService {
 
 		if (criteria.getLimit() != null && criteria.getLimit() > config.getMaxLimit())
 			criteria.setLimit(config.getMaxLimit());
-
 	}
 }

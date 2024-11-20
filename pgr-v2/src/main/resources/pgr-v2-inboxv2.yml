@@ -1,0 +1,50 @@
+{
+  "tenantId": "pg",
+  "moduleName": "INBOX",
+  "InboxQueryConfiguration": [
+    {
+      "module": "pgr-v2",
+      "index": "pgr-v2",
+      "allowedSearchCriteria": [
+        {
+          "name": "tenantId",
+          "path": "Data.service.tenantId.keyword",
+          "isMandatory": true,
+          "operator": "EQUAL"
+        },
+        {
+          "name": "serviceCode",
+          "path": "Data.service.serviceCode.keyword",
+          "isMandatory": false,
+          "operator": "EQUAL"
+        },
+        {
+          "name": "id",
+          "path": "Data.service.id.keyword",
+          "isMandatory": false,
+          "operator": "EQUAL"
+        },
+        {
+          "name": "serviceRequestId",
+          "path": "Data.service.serviceRequestId.keyword",
+          "isMandatory": false,
+          "operator": "EQUAL"
+        },
+        {
+          "name": "applicationStatus",
+          "path": "Data.service.applicationStatus.keyword",
+          "isMandatory": false,
+          "operator": "EQUAL"
+        }
+      ],
+      "sortBy": {
+        "path": "Data.auditDetails.createdTime",
+        "defaultOrder": "DESC"
+      },
+      "sourceFilterPathList": [
+        "Data.service",
+        "Data.currentProcessInstance"
+      ]
+    }
+  ]
+}

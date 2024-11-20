@@ -69,7 +69,7 @@ public class Address {
 
 	@JsonProperty("additionDetails")
 
-	private String additionDetails = null;
+	private Object additionDetails = null;
 
 	@JsonProperty("buildingName")
 

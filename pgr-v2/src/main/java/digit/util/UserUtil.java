@@ -6,7 +6,6 @@ import digit.repository.ServiceRequestRepository;
 import org.egov.common.contract.request.Role;
 import org.egov.common.contract.request.User;
 import org.egov.common.contract.user.UserDetailResponse;
-import org.egov.common.contract.user.enums.UserType;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,20 +22,18 @@ import static digit.config.ServiceConstants.*;
 @Component
 public class UserUtil {
 
-	@Autowired
-	private ObjectMapper mapper;
+	private final ObjectMapper mapper;
 
-	@Autowired
-	private ServiceRequestRepository serviceRequestRepository;
+	private final ServiceRequestRepository restRepo;
 
-	@Autowired
-	private PGRConfiguration configs;
+	private final PGRConfiguration config;
 
 
 	@Autowired
-	public UserUtil(ObjectMapper mapper, ServiceRequestRepository serviceRequestRepository) {
+	public UserUtil(ObjectMapper mapper, ServiceRequestRepository restRepo, PGRConfiguration config) {
 		this.mapper = mapper;
-		this.serviceRequestRepository = serviceRequestRepository;
+		this.restRepo = restRepo;
+		this.config = config;
 	}
 
 	/**
@@ -49,12 +46,12 @@ public class UserUtil {
 
 	public UserDetailResponse userCall(Object userRequest, StringBuilder uri) {
 		String dobFormat = null;
-		if (uri.toString().contains(configs.getUserSearchEndpoint()) || uri.toString().contains(configs.getUserUpdateEndpoint()))
+		if (uri.toString().contains(config.getUserSearchEndpoint()) || uri.toString().contains(config.getUserUpdateEndpoint()))
 			dobFormat = DOB_FORMAT_Y_M_D;
-		else if (uri.toString().contains(configs.getUserCreateEndpoint()))
+		else if (uri.toString().contains(config.getUserCreateEndpoint()))
 			dobFormat = DOB_FORMAT_D_M_Y;
 		try {
-			LinkedHashMap responseMap = (LinkedHashMap) serviceRequestRepository.fetchResult(uri, userRequest);
+			LinkedHashMap responseMap = (LinkedHashMap) restRepo.fetchResult(uri, userRequest);
 			parseResponse(responseMap, dobFormat);
 			UserDetailResponse userDetailResponse = mapper.convertValue(responseMap, UserDetailResponse.class);
 			return userDetailResponse;

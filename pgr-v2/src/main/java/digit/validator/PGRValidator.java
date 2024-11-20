@@ -35,16 +35,28 @@ public class PGRValidator {
 		this.hrmsUtil = hrmsUtil;
 	}
 
+	/**
+	 * Validates the service request for creating a complaint.
+	 * @param request The service request containing the complaint details.
+	 * @param mdmsData MDMS data used for validating service codes and other configurations.
+	 * @throws CustomException if validation fails.
+	 */
 	public void validateCreateRequest(ServiceRequest request, Object mdmsData) {
 		Map<String,String> errorMap = new HashMap<>();
 		validateUserData(request,errorMap);
 		validateSource(request.getPgrEntity().getService().getSource());
 		validateMDMS(request, mdmsData);
-		if(config.getIsValidateDeptEnabled()) validateDepartment(request, mdmsData);
+		if(Boolean.TRUE.equals(config.getIsValidateDeptEnabled())) validateDepartment(request, mdmsData);
 		if(!errorMap.isEmpty())
 			throw new CustomException(errorMap);
 	}
 
+	/**
+	 * Validates the service request for updating an existing complaint.
+	 * @param request The service request containing the updated complaint details.
+	 * @param mdmsData MDMS data used for validating service codes and other configurations.
+	 * @throws CustomException if validation fails.
+	 */
 	public void validateUpdate(ServiceRequest request, Object mdmsData){
 
 		String id = request.getPgrEntity().getService().getId();
@@ -54,13 +66,17 @@ public class PGRValidator {
 		validateDepartment(request, mdmsData);
 		validateReOpen(request);
 		RequestSearchCriteria criteria = RequestSearchCriteria.builder().ids(Collections.singleton(id)).tenantId(tenantId).build();
-		criteria.setIsPlainSearch(false);
-//		List<ServiceWrapper> serviceWrappers = repository.getServiceWrappers(criteria);
+		List<ServiceWrapper> serviceWrappers = repository.getServiceWrappers(criteria);
 
-//		if(CollectionUtils.isEmpty(serviceWrappers))
-//			throw new CustomException("INVALID_UPDATE","The record that you are trying to update does not exists");
+		if(CollectionUtils.isEmpty(serviceWrappers))
+			throw new CustomException("INVALID_UPDATE","The record that you are trying to update does not exists");
 	}
 
+	/**
+	 * Validates user data in the service request.
+	 * @param request The service request containing the user details.
+	 * @param errorMap A map to collect validation errors.
+	 */
 	private void validateUserData(ServiceRequest request,Map<String, String> errorMap){
 
 		RequestInfo requestInfo = request.getRequestInfo();
@@ -75,7 +91,12 @@ public class PGRValidator {
 
 	}
 
-
+	/**
+	 * Validates the MDMS data for a specific service code.
+	 * @param request The service request containing the service code.
+	 * @param mdmsData MDMS data used to validate the service code.
+	 * @throws CustomException if validation fails.
+	 */
 	private void validateMDMS(ServiceRequest request, Object mdmsData){
 
 		String serviceCode = request.getPgrEntity().getService().getServiceCode();
@@ -94,6 +115,12 @@ public class PGRValidator {
 			throw new CustomException("INVALID_SERVICECODE","The service code: "+serviceCode+" is not present in MDMS");
 	}
 
+	/**
+	 * Validates department assignment in the service request.
+	 * @param request The service request containing the department and assignes information.
+	 * @param mdmsData MDMS data used to validate the department.
+	 * @throws CustomException if validation fails.
+	 */
 	private void validateDepartment(ServiceRequest request, Object mdmsData){
 
 		String serviceCode = request.getPgrEntity().getService().getServiceCode();
@@ -131,6 +158,11 @@ public class PGRValidator {
 
 	}
 
+	/**
+	 * Validates if a complaint can be re-opened based on the last modified time.
+	 * @param request The service request containing the complaint details.
+	 * @throws CustomException if validation fails.
+	 */
 	private void validateReOpen(ServiceRequest request){
 
 		if(!request.getPgrEntity().getWorkflow().getAction().equalsIgnoreCase(PGR_WF_REOPEN))
@@ -150,7 +182,13 @@ public class PGRValidator {
 			throw new CustomException("INVALID_ACTION","Complaint is closed");
 
 	}
-	
+
+	/**
+	 * Validates search criteria to ensure mandatory parameters are present.
+	 * @param requestInfo The request info containing user details.
+	 * @param criteria The search criteria.
+	 * @throws CustomException if validation fails.
+	 */
 	public void validateSearch(RequestInfo requestInfo, RequestSearchCriteria criteria){
 
 		/*
@@ -165,7 +203,13 @@ public class PGRValidator {
 		validateSearchParam(requestInfo, criteria);
 
 	}
-	
+
+	/**
+	 * Validates individual search parameters based on the user type.
+	 * @param requestInfo The request info containing user details.
+	 * @param criteria The search criteria.
+	 * @throws CustomException if validation fails.
+	 */
 	private void validateSearchParam(RequestInfo requestInfo, RequestSearchCriteria criteria){
 
 		if(requestInfo.getUserInfo().getType().equalsIgnoreCase("EMPLOYEE" ) && criteria.isEmpty())
@@ -199,12 +243,14 @@ public class PGRValidator {
 
 	}
 
+	/**
+	 * Validates the source field in the service request.
+	 * @param source The source of the request.
+	 * @throws CustomException if validation fails.
+	 */
 	private void validateSource(String source){
-
 		List<String> allowedSourceStr = Arrays.asList(config.getAllowedSource().split(","));
-
 		if(!allowedSourceStr.contains(source))
 			throw new CustomException("INVALID_SOURCE","The source: "+source+" is not valid");
-
 	}
 }

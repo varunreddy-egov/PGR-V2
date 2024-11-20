@@ -33,6 +33,13 @@ public class MdmsUtil {
 		this.multiStateInstanceUtil = multiStateInstanceUtil;
 	}
 
+	/**
+	 * Fetches MDMS data from the configured MDMS service based on the tenant ID and request info.
+	 *
+	 * @param requestInfo The request info containing details like user information.
+	 * @param tenantId    The tenant ID for which MDMS data is to be fetched.
+	 * @return The MDMS data as an object.
+	 */
 	public Object fetchMdmsData(RequestInfo requestInfo, String tenantId) {
 		StringBuilder uri = new StringBuilder();
 		uri.append(config.getMdmsHost()).append(config.getMdmsEndPoint());
@@ -40,6 +47,13 @@ public class MdmsUtil {
 		return restRepo.fetchResult(uri, mdmsCriteriaReq);
 	}
 
+	/**
+	 * Creates and returns the MDMS request object using the provided request info and tenant ID.
+	 *
+	 * @param requestInfo The request info containing user and request details.
+	 * @param tenantId    The tenant ID for which MDMS data is requested.
+	 * @return The constructed MDMS request object.
+	 */
 	private MdmsCriteriaReq getMdmsRequest(RequestInfo requestInfo, String tenantId) {
 		List<ModuleDetail> pgrModuleRequest = getPGRModuleRequest();
 
@@ -51,6 +65,11 @@ public class MdmsUtil {
 				.requestInfo(requestInfo).build();
 	}
 
+	/**
+	 * Creates and returns the PGR module request for fetching service definition data from MDMS.
+	 *
+	 * @return A list containing module details for PGR module with active data filter applied.
+	 */
 	private List<ModuleDetail> getPGRModuleRequest() {
 
 		// master details of PGR module

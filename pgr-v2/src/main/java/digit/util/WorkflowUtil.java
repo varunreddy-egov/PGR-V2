@@ -24,11 +24,11 @@ import static digit.config.ServiceConstants.*;
 @Service
 public class WorkflowUtil {
 
-	private PGRConfiguration pgrConfiguration;
+	private final PGRConfiguration pgrConfiguration;
 
-	private ServiceRequestRepository repository;
+	private final ServiceRequestRepository repository;
 
-	private ObjectMapper mapper;
+	private final ObjectMapper mapper;
 
 
 	@Autowired
@@ -75,16 +75,6 @@ public class WorkflowUtil {
 		return state.getApplicationStatus();
 	}
 
-
-	public void validateAssignee(ServiceRequest serviceRequest) {
-		/*
-		 * Call HRMS service and validate of the assignee belongs to same department
-		 * as the employee assigning it
-		 *
-		 * */
-
-	}
-
 	/**
 	 * Creates url for search based on given tenantId and businessservices
 	 *
@@ -102,15 +92,6 @@ public class WorkflowUtil {
 		url.append(businessService);
 		return url;
 	}
-
-
-	public void enrichmentForSendBackToCititzen() {
-		/*
-		 * If send bac to citizen action is taken assignes should be set to accountId
-		 *
-		 * */
-	}
-
 
 	public List<ServiceWrapper> enrichWorkflow(RequestInfo requestInfo, List<ServiceWrapper> serviceWrappers) {
 

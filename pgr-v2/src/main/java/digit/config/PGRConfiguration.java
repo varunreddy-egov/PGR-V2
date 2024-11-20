@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @Getter
 public class PGRConfiguration {
 
-
 	// User Config
 	@Value("${egov.user.host}")
 	private String userHost;
@@ -122,5 +121,13 @@ public class PGRConfiguration {
 
 	@Value("${employee.allowed.search.params}")
 	private String allowedEmployeeSearchParameters;
+
+	// central-instance configs
+	@Value("${state.level.tenantid.length}")
+	private Integer stateLevelTenantIdLength;
+
+	@Value("${is.environment.central.instance}")
+	private Boolean isEnvironmentCentralInstance;
+
 
 }
